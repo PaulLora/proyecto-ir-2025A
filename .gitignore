@@ -195,3 +195,5 @@ cython_debug/
 
 # local history
 .history/
+
+.idea/

@@ -6,25 +6,15 @@ readme = "README.md"
 authors = ["Paul Lora", "Byron Carpio", "Diego Suquillo"]
 packages = [{ include = "src" }]
 
+
 [tool.poetry.dependencies]
-python = ">=3.12,<3.13"
+python = ">3.13,<4.0"
 pydantic = {extras = ["email"], version = "^2.10.6"}
 poethepoet = "^0.25.0"
 scikit-learn = "^1.6.1"
-
-[tool.pylint.master]
-max-line-length = 200
-disable = [
-    "missing-class-docstring",
-    "missing-function-docstring",
-    "missing-module-docstring",
-    "too-few-public-methods",
-    "wrong-import-order",
-    "attribute-defined-outside-init",
-    "too-many-arguments",
-    "too-many-positional-arguments"
-]
-ignore-paths = "tests"
+ir-datasets = "0.5.10"
+inquirerpy = "0.3.4"
+nltk = "3.9.1"
 
 
 [build-system]
