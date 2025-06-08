@@ -2,6 +2,8 @@ import ir_datasets
 from nltk import SnowballStemmer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import pickle
+import os
 
 
 STOPWORDS = ['the', 'and', 'to', 'of', 'a', 'in', 'is', 'that', 'it', 'for']
@@ -44,16 +46,60 @@ def get_most_accurate_doc(corpus: list, vectorizer_vector, vectorized_query) -> 
     cosine_similarities = cosine_similarity(vectorized_query, vectorizer_vector).flatten()
     return corpus[cosine_similarities.argmax()].text
 
-if __name__ == "__main__":
-    corpus = get_corpus()
+def preprocess():
+    """
+    Preprocesa el corpus y lo vectoriza.
 
+    :param corpus: Corpus a preprocesar.
+    :return: Lista de documentos preprocesados.
+    """
+    if os.path.exists("preprocessed.pkl"):
+        print("\r⚠️  El corpus ya ha sido preprocesado. Si quieres volver a preprocesarlo, elimina el archivo 'preprocessed.pkl'.")
+        return
+    
+    corpus = get_corpus()
     processed_corpus = preprocess_corpus(corpus)
     vectorizer = get_count_vectorizer()
-
     vectorizer_vector = vectorizer.fit_transform(processed_corpus)
+    # Guardar todo en un archivo
+    with open("preprocessed.pkl", "wb") as f:
+        pickle.dump({
+            "corpus": corpus,
+            "vectorizer": vectorizer,
+            "vectorizer_vector": vectorizer_vector
+        }, f)
 
-    query = "speakers"
+def seeker(query: str) -> str:
+    """
+    Busca un documento en el corpus que sea mas relevante a la consulta.
+
+    :param query: Consulta de busqueda.
+    :return: Documento mas relevante.
+    """
+    if not os.path.exists("preprocessed.pkl"):
+        print("\r⚠️  Primero debes preprocesar el corpus.")
+        return
+    
+    with open("preprocessed.pkl", "rb") as f:
+        data = pickle.load(f)
+        corpus = data["corpus"]
+        vectorizer = data["vectorizer"]
+        vectorizer_vector = data["vectorizer_vector"]
 
     vectorized_query = vectorize_query(query, vectorizer)
+    return get_most_accurate_doc(corpus, vectorizer_vector, vectorized_query)
 
-    print(get_most_accurate_doc(corpus, vectorizer_vector, vectorized_query))
+# if __name__ == "__main__":
+#     preprocess()
+    # corpus = get_corpus()
+
+    # processed_corpus = preprocess_corpus(corpus)
+    # vectorizer = get_count_vectorizer()
+
+    # vectorizer_vector = vectorizer.fit_transform(processed_corpus)
+
+    # query = "speakers"
+
+    # vectorized_query = vectorize_query(query, vectorizer)
+
+    # print(get_most_accurate_doc(corpus, vectorizer_vector, vectorized_query))
