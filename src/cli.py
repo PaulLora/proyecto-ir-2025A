@@ -112,7 +112,35 @@ def menu_busqueda():
             spinner_thread.join()
         elif respuesta == "Volver al menú principal":
             break
+
+def menu_evaluacion():
+    """
+    Muestra el menú de evaluación.
+    """
+    opciones = [
+        "Evaluar sistema",
+        "Volver al menú principal"
+    ]
     
+    respuesta = inquirer.select(
+        message="Evaluación:",
+        choices=opciones
+    ).execute()
+    
+    if respuesta == "Evaluar sistema":
+        metodo = inquirer.select(
+            message="Seleccione el método de evaluación:",
+            choices=["TF-IDF", "BM25"]
+        ).execute()
+        stop_event = threading.Event()
+        spinner_thread = threading.Thread(target=spinner, args=(stop_event, "Evaluando sistema...", "Evaluación completada!"))
+        spinner_thread.start()
+        evaluar_sistema(metodo=metodo)
+        stop_event.set()
+        spinner_thread.join()
+    elif respuesta == "Volver al menú principal":
+        return
+
 def ingresar_consulta():
     """
     Solicita al usuario que ingrese una consulta de búsqueda.
@@ -139,16 +167,7 @@ def main():
         elif opcion == "Búsqueda":
             menu_busqueda()
         elif opcion == "Evaluación":
-            metodo = inquirer.select(
-                message="Seleccione el método de evaluación:",
-                choices=["TF-IDF", "BM25"]
-            ).execute()
-            stop_event = threading.Event()
-            spinner_thread = threading.Thread(target=spinner, args=(stop_event, "Evaluando sistema...", "Evaluación completada!"))
-            spinner_thread.start()
-            evaluar_sistema(metodo=metodo)
-            stop_event.set()
-            spinner_thread.join()
+            menu_evaluacion()
         elif opcion == "Salir":
             animar_texto("Saliendo del sistema. ¡Hasta luego!", 0.04)
             break
