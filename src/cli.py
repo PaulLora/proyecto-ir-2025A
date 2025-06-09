@@ -99,11 +99,9 @@ def menu_busqueda():
             stop_event = threading.Event()
             spinner_thread = threading.Thread(target=spinner, args=(stop_event, "Buscando documentos...", "Búsqueda completada!"))
             spinner_thread.start()
-            resultado = seeker(consulta)
+            seeker(consulta)
             stop_event.set()
             spinner_thread.join()
-            if resultado:
-                print(f"\n📄 Documento más relevante:\n{resultado}\n")
         elif respuesta == "Volver al menú principal":
             break
     

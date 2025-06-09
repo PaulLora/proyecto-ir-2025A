@@ -1,4 +1,7 @@
+from dataclasses import asdict
+
 import ir_datasets
+import numpy as np
 from nltk import SnowballStemmer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -42,9 +45,14 @@ def vectorize_query(query: str, vectorizer: CountVectorizer):
     return vectorizer.transform([query])
 
 
-def get_most_accurate_doc(corpus: list, vectorizer_vector, vectorized_query) -> str:
+def get_top_5_matched_documents(corpus: list, vectorizer_vector, vectorized_query) -> list:
     cosine_similarities = cosine_similarity(vectorized_query, vectorizer_vector).flatten()
-    return corpus[cosine_similarities.argmax()].text
+    top_5_indexes = np.argsort(cosine_similarities)[-5:][::-1]
+    documents = []
+    for index in top_5_indexes:
+        documents.append(corpus[index])
+    return documents
+
 
 def preprocess():
     """
@@ -69,7 +77,15 @@ def preprocess():
             "vectorizer_vector": vectorizer_vector
         }, f)
 
-def seeker(query: str) -> str:
+
+def documents_presentation(docs: list) -> None:
+    print("\r✅ Top 5 documentos: ")
+    for index, doc in enumerate(docs):
+        print("***************************************************")
+        print(f"------------------- Documento {index} -------------------")
+        print(doc.text)
+
+def seeker(query: str):
     """
     Busca un documento en el corpus que sea mas relevante a la consulta.
 
@@ -87,19 +103,5 @@ def seeker(query: str) -> str:
         vectorizer_vector = data["vectorizer_vector"]
 
     vectorized_query = vectorize_query(query, vectorizer)
-    return get_most_accurate_doc(corpus, vectorizer_vector, vectorized_query)
-
-# if __name__ == "__main__":
-#     preprocess()
-    # corpus = get_corpus()
-
-    # processed_corpus = preprocess_corpus(corpus)
-    # vectorizer = get_count_vectorizer()
-
-    # vectorizer_vector = vectorizer.fit_transform(processed_corpus)
-
-    # query = "speakers"
-
-    # vectorized_query = vectorize_query(query, vectorizer)
-
-    # print(get_most_accurate_doc(corpus, vectorizer_vector, vectorized_query))
+    documents = get_top_5_matched_documents(corpus, vectorizer_vector, vectorized_query)
+    documents_presentation(documents)
