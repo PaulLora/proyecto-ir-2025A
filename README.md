@@ -6,6 +6,7 @@ Este proyecto es una aplicación desarrollada en Python para la materia de Infor
 - `src/`: Contiene el código fuente principal del proyecto.
   - `ir.py`: Contiene las utilidades para el sistema de recuperacion de informacion.
   - `cli.py`: Interfaz de CLI para el programa.
+  - `evaluation.py`: Contiene las funciones para la evaluación automática del sistema de recuperación de información, incluyendo el cálculo de métricas como precisión, recall y MAP utilizando las queries y qrels del dataset.
 - `pyproject.toml` y `poetry.lock`: Archivos de configuración y dependencias del proyecto.
 
 ## Requisitos
