@@ -2,6 +2,7 @@ import time
 from InquirerPy import inquirer
 import threading
 from ir import preprocess, seeker
+from evaluation import evaluar_sistema
 
 def animar_texto(texto, velocidad):
     """
@@ -25,7 +26,8 @@ def spinner(stop_event, start_message="Cargando...", end_message="Carga completa
         print(f'\r{spinner_chars[i % len(spinner_chars)]} {start_message}', end='', flush=True)
         time.sleep(0.2)
         i += 1
-    print(f'\r✅ {end_message}')
+    print()
+    print(f'✅ {end_message}')
 
 def menu_principal():
     """
@@ -34,6 +36,7 @@ def menu_principal():
     opciones = [
         "Preprocesamiento",
         "Búsqueda",
+        "Evaluación",
         "Salir"
     ]
     
@@ -95,11 +98,16 @@ def menu_busqueda():
         ).execute()
         
         if respuesta == "Ingresar consulta":
+            method = inquirer.select(
+                message="Seleccione el método de búsqueda:",
+                choices=["TF-IDF", "BM25"]
+            ).execute()
+            print(f"\r🔍 Método seleccionado: {method}")
             consulta = ingresar_consulta()
             stop_event = threading.Event()
             spinner_thread = threading.Thread(target=spinner, args=(stop_event, "Buscando documentos...", "Búsqueda completada!"))
             spinner_thread.start()
-            seeker(consulta)
+            seeker(consulta, method=method)
             stop_event.set()
             spinner_thread.join()
         elif respuesta == "Volver al menú principal":
@@ -130,6 +138,17 @@ def main():
             menu_preprocesamiento()
         elif opcion == "Búsqueda":
             menu_busqueda()
+        elif opcion == "Evaluación":
+            metodo = inquirer.select(
+                message="Seleccione el método de evaluación:",
+                choices=["TF-IDF", "BM25"]
+            ).execute()
+            stop_event = threading.Event()
+            spinner_thread = threading.Thread(target=spinner, args=(stop_event, "Evaluando sistema...", "Evaluación completada!"))
+            spinner_thread.start()
+            evaluar_sistema(metodo=metodo)
+            stop_event.set()
+            spinner_thread.join()
         elif opcion == "Salir":
             animar_texto("Saliendo del sistema. ¡Hasta luego!", 0.04)
             break
